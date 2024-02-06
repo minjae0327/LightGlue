@@ -69,6 +69,13 @@ def rbd(data: dict) -> dict:
     }
 
 
+def load_image(path: Path, resize: int = None, **kwargs) -> torch.Tensor:
+    image = read_image(path)
+    if resize is not None:
+        image, _ = resize_image(image, resize, **kwargs)
+    return numpy_image_to_torch(image)
+
+
 def read_image(path: Path, grayscale: bool = False) -> np.ndarray:
     """Read an image from path as RGB or grayscale"""
     if not Path(path).exists():
@@ -80,17 +87,6 @@ def read_image(path: Path, grayscale: bool = False) -> np.ndarray:
     if not grayscale:
         image = image[..., ::-1]
     return image
-
-
-def numpy_image_to_torch(image: np.ndarray) -> torch.Tensor:
-    """Normalize the image tensor and reorder the dimensions."""
-    if image.ndim == 3:
-        image = image.transpose((2, 0, 1))  # HxWxC to CxHxW
-    elif image.ndim == 2:
-        image = image[None]  # add channel axis
-    else:
-        raise ValueError(f"Not an image: {image.shape}")
-    return torch.tensor(image / 255.0, dtype=torch.float)
 
 
 def resize_image(
@@ -121,11 +117,15 @@ def resize_image(
     return cv2.resize(image, (w_new, h_new), interpolation=mode), scale
 
 
-def load_image(path: Path, resize: int = None, **kwargs) -> torch.Tensor:
-    image = read_image(path)
-    if resize is not None:
-        image, _ = resize_image(image, resize, **kwargs)
-    return numpy_image_to_torch(image)
+def numpy_image_to_torch(image: np.ndarray) -> torch.Tensor:
+    """Normalize the image tensor and reorder the dimensions."""
+    if image.ndim == 3:
+        image = image.transpose((2, 0, 1))  # HxWxC to CxHxW
+    elif image.ndim == 2:
+        image = image[None]  # add channel axis
+    else:
+        raise ValueError(f"Not an image: {image.shape}")
+    return torch.tensor(image / 255.0, dtype=torch.float)
 
 
 class Extractor(torch.nn.Module):

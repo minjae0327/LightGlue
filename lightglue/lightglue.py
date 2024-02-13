@@ -7,12 +7,12 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from flash_attn.modules.mha import FlashCrossAttention
+#from flash_attn.modules.mha import FlashCrossAttention
 
-# try:
-#     from flash_attn.modules.mha import FlashCrossAttention
-# except ModuleNotFoundError:
-#     FlashCrossAttention = None
+try:
+    from flash_attn.modules.mha import FlashCrossAttention
+except ModuleNotFoundError:
+    FlashCrossAttention = None
 
 if FlashCrossAttention or hasattr(F, "scaled_dot_product_attention"):
     FLASH_AVAILABLE = True

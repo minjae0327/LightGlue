@@ -69,11 +69,19 @@ def rbd(data: dict) -> dict:
     }
 
 
-def load_image(path: Path, resize: int = None, **kwargs) -> torch.Tensor:
+def load_image_from_path(path: Path, resize: int = None, **kwargs) -> torch.Tensor:
     image = read_image(path)
     if resize is not None:
         image, _ = resize_image(image, resize, **kwargs)
     return numpy_image_to_torch(image)
+
+
+def load_image(image, resize: int = None, **kwargs) -> torch.Tensor:
+    if isinstance(image, Path):
+        print(image)
+        return load_image_from_path(image, resize, **kwargs)
+    elif isinstance(image, np.ndarray):
+        return numpy_image_to_torch(image)
 
 
 def read_image(path: Path, grayscale: bool = False) -> np.ndarray:

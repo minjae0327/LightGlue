@@ -77,8 +77,9 @@ def load_image_from_path(path: Path, resize: int = None, **kwargs) -> torch.Tens
 
 
 def load_image(image, resize: int = None, **kwargs) -> torch.Tensor:
+    if isinstance(image, str):  # 문자열인 경우 Path 객체로 변환
+        image = Path(image)
     if isinstance(image, Path):
-        print(image)
         return load_image_from_path(image, resize, **kwargs)
     elif isinstance(image, np.ndarray):
         return numpy_image_to_torch(image)

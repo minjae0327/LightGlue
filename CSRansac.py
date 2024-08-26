@@ -127,7 +127,7 @@ def find_homography(src_points, dst_points):
     H = L.reshape(3, 3)
     return H
 
-def calculate_inliers(H, points1, points2, threshold):
+def calculate_inliers(H, points1, points2, threshold=5):
     num_points = len(points1)
     points1_hom = np.concatenate([points1, np.ones((num_points, 1))], axis=1).T
     points2 = np.array(points2)

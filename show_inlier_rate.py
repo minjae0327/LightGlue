@@ -13,7 +13,10 @@ from lightglue.utils import load_image, rbd, load_image_from_path
 import CSRansac
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+<<<<<<< Updated upstream
 from matplotlib.animation import FFMpegWriter
+=======
+>>>>>>> Stashed changes
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
@@ -142,6 +145,7 @@ def get_inlier_rate():
         
 
 def main():
+<<<<<<< Updated upstream
     # inlier_rates.json 파일에서 데이터 로드
     with open("inlier_rate.json", "r") as f:
         inlier_rates = json.load(f)
@@ -171,10 +175,36 @@ def main():
 
     ani = FuncAnimation(fig, update, frames=range(len(inlier_rates)),
                         init_func=init, blit=True, interval=(1000/30), repeat=False)
+=======
+    with open("inlier_rate.json", "r") as f:
+        inlier_rates = json.load(f)
+    
+    len_inlier = len(inlier_rates)
+    
+    fig, ax = plt.subplots()
+    xdata, ydata = [], []
+    ln, = plt.plot([], [], 'r-', animated=True)
+
+    for i in range(len_inlier):
+        def init():
+            ax.set_xlim(0, i)  # 프레임 수에 따라 조절
+            ax.set_ylim(0, 1)  # inlier rate의 최댓값에 따라 y축 범위 조절
+            return ln,
+
+        def update(frame):
+            xdata.append(frame)
+            ydata.append(inlier_rates[frame])
+            ln.set_data(xdata, ydata)
+            return ln,
+
+        ani = FuncAnimation(fig, update, frames=i,
+                            init_func=init, blit=True, interval=(1000/30))
+>>>>>>> Stashed changes
 
     plt.xlabel('Frame')
     plt.ylabel('Inlier Rate')
     plt.title('Inlier Rate Over Time')
+<<<<<<< Updated upstream
     
     # GIF로 저장하기 전에 imagemagick이 설치되어 있어야 함
     ani.save('lightglue_inlier_rate.gif', writer='imagemagick', fps=30)
@@ -182,3 +212,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+=======
+    plt.show()
+    
+
+
+
+if __name__ == "__main__":
+    main()
+>>>>>>> Stashed changes

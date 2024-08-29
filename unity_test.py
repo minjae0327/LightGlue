@@ -15,5 +15,4 @@
 
 import sys
 
-if 'name' == "__main__":
-    print("main")
+print("main")

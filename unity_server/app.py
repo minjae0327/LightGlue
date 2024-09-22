@@ -8,7 +8,7 @@ def upload_frame():
     image_data = request.data
     
     # 이미지 전처리
-    image = img_process.preprocess_image(image_data)
+    # image = img_process.preprocess_image(image_data)
     
     # 예시: 처리된 결과를 result로 설정 (실제 처리 로직에 맞게 수정)
     result = "Frame received and processed"

@@ -1,80 +1,45 @@
 import os
 import sys
 import cv2 
-import math
 import copy
 import torch
 import numpy as np
-import kornia as K
-import kornia.feature as KF
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
-from lightglue import LightGlue, SuperPoint
-from lightglue.utils import load_image, rbd, load_image_from_path
-import CSRansac
+from lightglue_utils import *
+from CSRansac import csransac
 
 
+def process_image(img, cracked_image=r"C:\Users\ailab\LightGlue\unity_server\CrackedImage.PNG"):
+    # 이미지 파일이 존재하는지 확인
+    # if not os.path.exists(image_path):
+    #     print(f"Image file does not exist: {image_path}")
+    #     return
 
-def preprocess_image(image_data):
-    npimg = np.frombuffer(image_data, np.uint8)  # 바이트 데이터를 numpy 배열로 변환
-    image = cv2.imdecode(npimg, cv2.IMREAD_COLOR)  # numpy 배열을 이미지로 디코딩
+    # OpenCV를 사용하여 이미지 읽기
+    # img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)  # 알파 채널 포함하여 이미지 읽기
+    # if img is None:
+    #     print(f"Failed to load image at {image_path}")
+    #     return
     
-    return image
-
-print("aa")
-
-
+    image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # 이미지 전처리 하기
+    results_lightglue = matching_keypoints(cracked_image, image)
+    cracked_keypoint = results_lightglue["points0"].cpu().numpy()
+    video_keypoint = results_lightglue["points1"].cpu().numpy()
     
+    H, inliers = csransac(cracked_keypoint, video_keypoint)
+    if np.mean(inliers) >= 0.8:
+        return "Crack Detected"
     
-# print("Hello")
+    return "No Crack Detected"
 
-# import socket
-# import numpy as np
-# import cv2
 
-# def preprocess_image(image_data):
-#     npimg = np.frombuffer(image_data, np.uint8)  # 바이트 데이터를 numpy 배열로 변환
-#     image = cv2.imdecode(npimg, cv2.IMREAD_COLOR)  # numpy 배열을 이미지로 디코딩
-#     return image
+# if __name__ == "__main__":
+#     if len(sys.argv) < 2:
+#         print("Usage: python image_processor.py <image_path>")
+#         sys.exit(1)
 
-# # 소켓 서버 설정
-# server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# server_socket.bind(('127.0.0.1', 5001))  # IP와 포트를 바인딩
-# server_socket.listen(1)
-# print("Waiting for Unity connection...")
-
-# # Unity 클라이언트와 연결
-# client_socket, addr = server_socket.accept()
-# print(f"Connected by {addr}")
-
-# try:
-#     while True:
-#         # 먼저 이미지 크기(4바이트)를 받음
-#         data = client_socket.recv(4)
-#         if not data:
-#             break
-#         image_size = int.from_bytes(data, byteorder='little')
-
-#         # 이미지 데이터를 받음
-#         image_data = b""
-#         while len(image_data) < image_size:
-#             packet = client_socket.recv(image_size - len(image_data))
-#             if not packet:
-#                 break
-#             image_data += packet
-
-#         # 수신한 데이터를 이미지로 디코딩
-#         image = preprocess_image(image_data)
-
-#         # 수신한 이미지를 화면에 출력 (OpenCV 사용)
-#         cv2.imshow('Received Frame', image)
-
-#         # 'q' 키를 누르면 종료
-#         if cv2.waitKey(1) & 0xFF == ord('q'):
-#             break
-
-# finally:
-#     client_socket.close()
-#     server_socket.close()
-#     cv2.destroyAllWindows()
+#     image_path = sys.argv[1]
+#     cracked_image = r"C:\Users\ailab\LightGlue\unity_server\CrackedImage.PNG"
+#     process_image(image_path, cracked_image)

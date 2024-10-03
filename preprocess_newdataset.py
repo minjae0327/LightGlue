@@ -99,7 +99,7 @@ def get_lens():
     return lens
 
 
-def get_image_paths():
+def get_images():
     # 원본 이미지 경로를 저장할 리스트
     image_1 = []
     image_2 = []
